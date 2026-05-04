@@ -1,47 +1,26 @@
-    package com.example.fitlog
+package com.example.fitlog
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.fitlog.ui.theme.FitLogTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.fitlog.data.local.FitLogDatabase
+import com.example.fitlog.data.repository.FitLogRepository
+import com.example.fitlog.ui.navigation.AppNavigation
+import com.example.fitlog.ui.viewmodel.*
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        val db = FitLogDatabase.getDatabase(this)
+        val repo = FitLogRepository(db.dao())
+        val factory = FitLogViewModelFactory(repo)
+
         setContent {
-            FitLogTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            val vm: FitLogViewModel = viewModel(factory = factory)
+            AppNavigation(vm)
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FitLogTheme {
-        Greeting("Android")
     }
 }
