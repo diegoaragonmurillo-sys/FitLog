@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fitlog.ui.viewmodel.FitLogViewModel
@@ -23,19 +24,20 @@ fun DetalleSesionScreen(
     val detalle by viewModel.obtenerDetalle(id).collectAsState(initial = null)
 
     Scaffold(
+        containerColor = Color(0xFF121212),
         topBar = {
             TopAppBar(
-                title = { Text("Detalle sesión") },
+                title = { Text("Detalle", color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Volver"
-                        )
+                        Icon(Icons.Default.ArrowBack, "", tint = Color.White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF1E1E1E)
+                )
             )
         }
     ) { padding ->
@@ -53,7 +55,10 @@ fun DetalleSesionScreen(
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(8.dp)
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF1E1E1E)
+                        ),
+                        elevation = CardDefaults.cardElevation(10.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),
@@ -62,12 +67,13 @@ fun DetalleSesionScreen(
 
                             Text(
                                 data.sesion.nombreRutina,
-                                style = MaterialTheme.typography.headlineSmall
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = Color.White
                             )
 
                             Text(
                                 "📅 ${data.sesion.fecha}",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = Color.Gray
                             )
 
                             AssistChip(
@@ -84,7 +90,13 @@ fun DetalleSesionScreen(
                                         else
                                             "Pendiente ⏳"
                                     )
-                                }
+                                },
+                                colors = AssistChipDefaults.assistChipColors(
+                                    containerColor = if (data.sesion.completada)
+                                        Color(0xFF00C853)
+                                    else
+                                        Color(0xFFFFA000)
+                                )
                             )
                         }
                     }
@@ -94,48 +106,48 @@ fun DetalleSesionScreen(
                 item {
                     Text(
                         "Ejercicios",
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White
                     )
                 }
 
-                // 🔥 LISTA DE EJERCICIOS
+                // 🔥 LISTA
                 items(data.ejercicios) { ejercicio ->
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(4.dp)
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF1E1E1E)
+                        ),
+                        elevation = CardDefaults.cardElevation(6.dp)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        Column(
+                            modifier = Modifier.padding(16.dp)
                         ) {
 
-                            Column {
-                                Text(
-                                    ejercicio.nombre,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
+                            Text(
+                                ejercicio.nombre,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White
+                            )
 
-                                Text(
-                                    "${ejercicio.series} series x ${ejercicio.repeticiones} reps",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            Text(
+                                "${ejercicio.series} series x ${ejercicio.repeticiones} reps",
+                                color = Color.Gray
+                            )
                         }
                     }
                 }
             }
 
         } ?: run {
-            // 🔥 LOADING BONITO
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = Color(0xFF00C853))
             }
         }
     }
