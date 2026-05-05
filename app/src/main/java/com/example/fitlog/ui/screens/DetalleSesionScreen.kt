@@ -2,8 +2,11 @@ package com.example.fitlog.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -17,33 +20,122 @@ fun DetalleSesionScreen(
     id: Int
 ) {
 
-    val data by viewModel.obtenerDetalle(id)
-        .collectAsState(initial = null)
+    val detalle by viewModel.obtenerDetalle(id).collectAsState(initial = null)
 
-    data?.let {
-
-        LazyColumn(
-            modifier = Modifier.padding(16.dp)
-        ) {
-
-            item {
-                Text(it.sesion.nombreRutina)
-                Text("Fecha: ${it.sesion.fecha}")
-
-                Button(
-                    onClick = {
-                        viewModel.cambiarEstado(
-                            it.sesion.id,
-                            !it.sesion.completada
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Detalle sesión") },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Volver"
                         )
                     }
-                ) {
-                    Text("Cambiar estado")
+                }
+            )
+        }
+    ) { padding ->
+
+        detalle?.let { data ->
+
+            LazyColumn(
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+
+                // 🔥 CARD PRINCIPAL
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+
+                            Text(
+                                data.sesion.nombreRutina,
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+
+                            Text(
+                                "📅 ${data.sesion.fecha}",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            AssistChip(
+                                onClick = {
+                                    viewModel.cambiarEstado(
+                                        data.sesion.id,
+                                        !data.sesion.completada
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        if (data.sesion.completada)
+                                            "Completada ✅"
+                                        else
+                                            "Pendiente ⏳"
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // 🔥 TITULO
+                item {
+                    Text(
+                        "Ejercicios",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+
+                // 🔥 LISTA DE EJERCICIOS
+                items(data.ejercicios) { ejercicio ->
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+
+                            Column {
+                                Text(
+                                    ejercicio.nombre,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+
+                                Text(
+                                    "${ejercicio.series} series x ${ejercicio.repeticiones} reps",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
-            items(it.ejercicios) {
-                Text("${it.nombre} - ${it.series}x${it.repeticiones}")
+        } ?: run {
+            // 🔥 LOADING BONITO
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
         }
     }

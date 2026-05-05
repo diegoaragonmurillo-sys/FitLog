@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -21,62 +22,98 @@ fun HistorialScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("FitLog") })
+            TopAppBar(
+                title = { Text("FitLog") }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate("crear") }
             ) {
-                Icon(Icons.Default.Add, contentDescription = "")
+                Icon(Icons.Default.Add, contentDescription = "Agregar")
             }
         }
     ) { padding ->
 
-        LazyColumn(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-        ) {
+        if (sesiones.isEmpty()) {
+            // 🔥 MENSAJE BONITO SI NO HAY DATOS
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "No hay sesiones aún 💪",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        } else {
 
-            items(sesiones) { sesion ->
+            LazyColumn(
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    onClick = {
-                        navController.navigate("detalle/${sesion.id}")
-                    }
-                ) {
+                items(sesiones) { sesion ->
 
-                    Column(Modifier.padding(16.dp)) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(6.dp),
+                        onClick = {
+                            navController.navigate("detalle/${sesion.id}")
+                        }
+                    ) {
 
-                        Text(
-                            sesion.nombreRutina,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-
-                        Text("Fecha: ${sesion.fecha}")
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        AssistChip(
-                            onClick = {},
-                            label = {
-                                Text(
-                                    if (sesion.completada)
-                                        "Completada"
-                                    else "Pendiente"
-                                )
-                            }
-                        )
-
-                        IconButton(
-                            onClick = {
-                                viewModel.eliminarSesion(sesion)
-                            }
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(Icons.Default.Delete, "")
+
+                            // 🔹 TITULO
+                            Text(
+                                sesion.nombreRutina,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+
+                            // 🔹 FECHA
+                            Text(
+                                "📅 ${sesion.fecha}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            // 🔹 ESTADO
+                            AssistChip(
+                                onClick = {},
+                                label = {
+                                    Text(
+                                        if (sesion.completada)
+                                            "Completada ✅"
+                                        else
+                                            "Pendiente ⏳"
+                                    )
+                                }
+                            )
+
+                            // 🔹 BOTÓN ELIMINAR
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        viewModel.eliminarSesion(sesion)
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Eliminar"
+                                    )
+                                }
+                            }
                         }
                     }
                 }
